@@ -1,5 +1,6 @@
 import { createPiano } from './piano-core.js';
 import { WebsimSocket } from 'websim-socket';
+import { PARTYKIT_HOST } from './env.js';
 
 // Add error handling to module loading
 window.addEventListener('error', (event) => {
@@ -14,7 +15,7 @@ async function initializePiano() {
         try {
             // Initialize WebsimSocket room for multiplayer
             const room = new WebsimSocket({
-                host: '__PARTYKIT_HOST__',
+                host: PARTYKIT_HOST,
                 room: 'piano-lobby',
             });
             await room.initialize();

@@ -23,8 +23,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Inject PartyKit host
-        run: sed -i "s|__PARTYKIT_HOST__|${{ vars.PARTYKIT_HOST }}|g" piano.js
+      - name: Generate env.js
+        run: PARTYKIT_HOST="${{ vars.PARTYKIT_HOST }}" ./setup-env.sh
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
