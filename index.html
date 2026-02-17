@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Multiplayer Piano</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <script type="importmap">
+    {
+        "imports": {
+            "tone": "https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js",
+            "effects-sync": "./effects-sync.js",
+            "websim-socket": "https://esm.sh/websim-socket"
+        }
+    }
+    </script>
+    <style>
+        #start-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            color: white;
+            text-align: center;
+            flex-direction: column;
+        }
+
+        #start-overlay h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #00FFAA;
+        }
+
+        #start-button {
+            background-color: #00FFAA;
+            color: black;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        #start-button:hover {
+            background-color: white;
+        }
+    </style>
+</head>
+<body>
+    <div id="start-overlay">
+        <h1>Multiplayer Piano</h1>
+        <p>Click to start making music!</p>
+        <button id="start-button">Begin</button>
+    </div>
+    <div id="master-volume-slider-container">
+        <label>
+            Master
+            <input type="range" id="master-volume-slider" min="0" max="1" step="0.01" value="1">
+        </label>
+        <button id="sound-toggle" class="sound-toggle" disabled> Use Sampler</button>
+    </div>
+
+    <div id="piano-container">
+        <div id="keyboard-controls">
+            <button id="octave-down"><i class="fas fa-arrow-left"></i> Octave Down</button>
+            <button id="octave-up">Octave Up <i class="fas fa-arrow-right"></i></button>
+        </div>
+        <div id="keyboard"></div>
+        <div id="effects-panel">
+            <div class="effect-controls">
+                <h3>Effectors</h3>
+                <label>
+                    <span>Volume</span>
+                    <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.7">
+                </label>
+                <label>
+                    <span>Distortion</span>
+                    <input type="range" id="distortion-slider" min="0" max="1" step="0.1" value="0">
+                </label>
+                <label>
+                    <span>Reverb</span>
+                    <input type="range" id="reverb-slider" min="0" max="1" step="0.1" value="0">
+                </label>
+                <label>
+                    <span>Delay</span>
+                    <input type="range" id="delay-slider" min="0" max="1" step="0.1" value="0">
+                </label>
+            </div>
+        </div>
+        <button id="sustain-button">
+            Sustain <span class="key-badge">Space</span>
+        </button>
+        <button id="info-button" title="App Manual">
+            <i class="fas fa-info-circle"></i>
+        </button>
+    </div>
+
+    <div id="app-manual-overlay" class="manual-overlay">
+        <div class="manual-content">
+            <button id="close-manual" class="close-button">&times;</button>
+            <h2>Multiplayer Web MIDI Piano - User Manual</h2>
+
+            <section>
+                <h3>Basic Controls</h3>
+                <ul>
+                    <li>Use keyboard keys to play notes</li>
+                    <li>Click piano keys with mouse to play</li>
+                    <li>Octave Up/Down buttons shift the keyboard range</li>
+                </ul>
+            </section>
+
+            <section>
+                <h3>Keyboard Mapping</h3>
+                <ul>
+                    <li>Right-click a key to change its keyboard mapping</li>
+                    <li>Left/Right Arrow: Shift octave</li>
+                    <li>Up/Down Arrow: Transpose up/down by semitone</li>
+                    <li>Hold Space key for sustain (notes continue playing after release)</li>
+                </ul>
+            </section>
+
+            <section>
+                <h3>Effects</h3>
+                <ul>
+                    <li>Volume: Adjust individual piano volume</li>
+                    <li>Distortion: Add grit to the sound</li>
+                    <li>Reverb: Add spaciousness</li>
+                    <li>Delay: Create echo effect</li>
+                </ul>
+            </section>
+
+            <section>
+                <h3>Multiplayer Features</h3>
+                <ul>
+                    <li>Real-time note synchronization</li>
+                    <li>Shared effects across connected peers</li>
+                    <li>Mute individual peer pianos</li>
+                </ul>
+            </section>
+        </div>
+    </div>
+
+    <h3 id="multiplayer-label">Peer Pianist</h3>
+    <div id="multiplayer-pianos">
+        <div id="peer-pianos"></div>
+    </div>
+    <div id="error-display" style="color: red; position: fixed; bottom: 10px; left: 10px;"></div>
+    <script type="module" src="piano.js"></script>
+    <script type="module" src="octave-handling.js"></script>
+    <script type="module" src="peer-audio.js"></script>
+    <script type="module" src="peer-piano-manager.js"></script>
+    <script type="module" src="manual-handler.js"></script>
+    <script type="module">
+        import { createPiano } from './piano-core.js';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const startOverlay = document.getElementById('start-overlay');
+            const startButton = document.getElementById('start-button');
+
+            function hideStartOverlay() {
+                startOverlay.style.display = 'none';
+
+                // Start Tone.js audio context
+                if (window.Tone && Tone.context.state !== 'running') {
+                    Tone.start();
+                }
+            }
+
+            // Click anywhere on the overlay to start
+            startOverlay.addEventListener('click', (e) => {
+                if (e.target === startOverlay) {
+                    hideStartOverlay();
+                }
+            });
+
+            // Specific start button
+            startButton.addEventListener('click', hideStartOverlay);
+
+            // If the page loses focus, show overlay again
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    startOverlay.style.display = 'flex';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

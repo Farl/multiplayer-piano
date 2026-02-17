@@ -1,0 +1,553 @@
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    height: 100vh;
+    background-color: #000;
+    font-family: Arial, sans-serif;
+    overflow-y: auto;
+    user-select: none;
+}
+
+#piano-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #333;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    position: relative;
+    top: 10px;
+    z-index: 10;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 680px;
+    box-sizing: border-box;
+}
+
+#keyboard {
+    display: flex;
+    gap: 2px;
+    justify-content: center;
+    position: relative;
+    top: 30px;
+}
+
+.white-key, .black-key {
+    cursor: pointer;
+    transition: all 0.1s;
+    position: relative;
+}
+
+.white-key {
+    width: 40px;
+    height: 160px;
+    background-color: white;
+    border: 1px solid #ccc;
+}
+
+.black-key {
+    width: 26px;
+    height: 100px;
+    background-color: black;
+    margin-left: -13px;
+    margin-right: -13px;
+    z-index: 1;
+    background-image: linear-gradient(to bottom right, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.1) 100%);
+    border: none;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+}
+
+.white-key:active, .white-key.active {
+    transform: scale(0.95);
+    filter: brightness(0.9);
+}
+
+.black-key:active, .black-key.active {
+    transform: scale(0.95);
+    background-color: #555;
+    background-image: none;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+}
+
+#keyboard-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 10px;
+    position: absolute;
+    top: 0;
+    transform: translateY(0);
+    z-index: 10;
+    pointer-events: none;
+}
+
+#keyboard-controls button {
+    background-color: rgba(85, 85, 85, 1);
+    color: white;
+    border: none;
+    padding: 2px 4px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-size: 10px;
+    pointer-events: auto;
+    width: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+#octave-down {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+}
+
+#octave-up {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+}
+
+#keyboard-controls button:hover {
+    background-color: rgba(119, 119, 119, 0.8);
+}
+
+#keyboard-controls button:active {
+    background-color: rgba(153, 153, 153, 0.9);
+}
+
+#keyboard-controls button i {
+    font-size: 12px;
+}
+
+.sound-toggle {
+    background-color: rgba(85, 85, 85, 1) !important;
+    color: white !important;
+    border: none !important;
+    padding: 2px 8px !important;
+    border-radius: 3px !important;
+    cursor: pointer !important;
+    font-size: 10px !important;
+    width: 120px !important;
+    position: static !important;
+    transform: none !important;
+}
+
+.sound-toggle:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.sound-toggle.using-sampler {
+    background-color: #000000 !important;
+    color: white !important;
+}
+
+#effects-panel {
+    margin-top: 16px;
+    color: white;
+    text-align: center;
+}
+
+.effect-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+}
+
+.effect-controls label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: auto;
+    margin: 0;
+}
+
+.effect-controls label:first-child {
+    padding: 5px 10px;
+    border-radius: 4px;
+    width: auto;
+    margin-bottom: 0;
+}
+
+.effect-controls input[type="range"] {
+    width: 80px;
+    margin-top: 5px;
+}
+
+.effect-controls label span {
+    font-size: 10px;
+    margin-bottom: 2px;
+}
+
+#master-volume-slider-container {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0,0,0,0.3);
+    padding: 5px 10px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 20;
+}
+
+#master-volume-slider-container label {
+    display: flex;
+    align-items: center;
+    color: white;
+    font-size: 12px;
+}
+
+#master-volume-slider {
+    width: 80px;
+    margin-left: 10px;
+}
+
+#multiplayer-label {
+    color: white;
+    display: flex;
+}
+
+#multiplayer-pianos {
+    position: relative;
+    margin-top: 0px;
+    background-color: rgba(255,255,255,0.1);
+    padding: 10px;
+    border-radius: 5px;
+    max-width: 100%;
+    display: flex;
+    justify-content: center;
+    overflow-y: auto;
+    max-height: calc(100vh - 400px);
+    width: 90%;
+}
+
+#peer-pianos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    width: 100%;
+    max-width: 1200px;
+}
+
+.peer-piano {
+    background-color: #444;
+    border-radius: 5px;
+    padding: 10px;
+    text-align: center;
+    width: 280px;
+    margin-bottom: 0;
+    flex: 0 0 auto;
+}
+
+.peer-piano h4 {
+    color: white;
+    margin-bottom: 10px;
+}
+
+.peer-piano .peer-keyboard {
+    display: flex;
+    gap: 1px;
+    width: 100%;
+    height: 44px;
+    position: relative;
+    margin: 0 auto;
+    overflow-x: auto;
+}
+
+.peer-piano .peer-key {
+    height: 40px;
+    position: relative;
+}
+
+.peer-piano .peer-key.white-key {
+    background-color: white;
+    border: 1px solid #ccc;
+    width: 6px;
+    z-index: 0;
+}
+
+.peer-piano .peer-key.black-key {
+    background-color: black;
+    width: 4px;
+    height: 24px;
+    margin-left: -2px;
+    margin-right: -2px;
+    z-index: 1;
+    background-image: linear-gradient(to bottom right, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.1) 100%);
+    border: none;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.peer-piano .peer-key.active {
+    filter: brightness(0.7);
+    background-color: #00FFAA;
+    background-image: none;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+}
+
+.waveform-display {
+    height: 24px;
+    margin: 0px 0;
+    width: 100%;
+    border-radius: 4px;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+.waveform-svg {
+    width: 100%;
+    height: 100%;
+}
+
+.waveform-path {
+    transition: d 0.1s ease;
+}
+
+.peer-volume-control {
+    display: none;
+    color: white;
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.peer-volume-control label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.peer-volume-control input[type="range"] {
+    width: 100px;
+}
+
+.peer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+    margin-bottom: 10px;
+}
+
+.peer-header h4 {
+    margin: 0;
+    flex: 1;
+}
+
+.mute-toggle {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mute-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.mute-toggle[data-muted="true"] {
+    color: #ff5555;
+}
+
+.mute-toggle svg {
+    width: 20px;
+    height: 20px;
+}
+
+.key-label {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    color: #666;
+    user-select: none;
+    pointer-events: none;
+    text-align: center;
+    white-space: pre-line;
+    text-transform: uppercase;
+}
+
+.black-key .key-label {
+    color: #999;
+}
+
+.peer-effect-sliders {
+    margin-top: 5px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    justify-content: center;
+}
+
+.peer-effect-slider {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 10px;
+    color: white;
+    width: calc(50% - 5px);
+}
+
+.peer-effect-slider input {
+    width: 100%;
+    height: 8px;
+}
+
+.peer-effect-slider label {
+    margin-bottom: 2px;
+    font-size: 9px;
+}
+
+#info-button {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.3s;
+    z-index: 20;
+}
+
+#info-button:hover {
+    opacity: 1;
+}
+
+.manual-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    overflow-y: auto;
+}
+
+.manual-content {
+    background: #333;
+    color: white;
+    max-width: 600px;
+    width: 90%;
+    padding: 30px;
+    border-radius: 10px;
+    position: relative;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 30px;
+    cursor: pointer;
+}
+
+.manual-content h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #00FFAA;
+}
+
+.manual-content section {
+    margin-bottom: 20px;
+}
+
+.manual-content h3 {
+    color: #00FFAA;
+    border-bottom: 1px solid #00FFAA;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+}
+
+.manual-content ul {
+    list-style-type: none;
+    padding-left: 20px;
+}
+
+.manual-content li {
+    margin-bottom: 10px;
+    position: relative;
+}
+
+.manual-content li::before {
+    content: '•';
+    color: #00FFAA;
+    position: absolute;
+    left: -20px;
+}
+
+#sustain-button {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    background: rgba(85, 85, 85, 1);
+    color: white;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+#sustain-button.active {
+    background-color: #00FFAA;
+    color: black;
+}
+
+#sustain-button:hover {
+    background-color: rgba(119, 119, 119, 0.8);
+}
+
+#sustain-button.active:hover {
+    background-color: #00FFAA;
+    opacity: 0.9;
+}
+
+#sustain-button .key-badge {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-family: monospace;
+}
+
+#sustain-button.active .key-badge {
+    background: rgba(0, 0, 0, 0.2);
+}
